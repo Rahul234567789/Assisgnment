@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(38, 152, 125);
+            font-family: 'Outfit', sans-serif;
+            font-weight: bold;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(120px, 1fr));
+            grid-template-rows: repeat(10,60px);
+        }
+
+        .grid-item {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #000;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .circle {
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: left 0.5s, top 0.5s;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;            
+            font-family: 'Outfit', sans-serif;
+            font-weight: bold;
+        }
+    </style>
+    <title>Number Grid Game</title>
+</head>
+<body>
+
+<div class="grid-container" id="grid-container"></div>
+
+<div class="button-container">
+    <button onclick="rollDice()">Roll Dice</button>
+    <button onclick="resetGame()">Reset Game</button>
+</div>
+
+<div id="diceResult"></div>
+
+<script>
+    const gridContainer = document.getElementById('grid-container');
+    const diceResultContainer = document.getElementById('diceResult');
+    let currentPosition = 1;
+
+    function initializeGrid() {
+        for (let i = 1; i <= 100; i++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.textContent = i;
+
+            const row = Math.ceil(i / 10);
+            const column = i % 10 === 0 ? 10 : i % 10;
+            gridItem.classList.add(row % 2 === 0 ? 'even-row' : 'odd-row');
+            gridItem.classList.add(column % 2 === 0 ? 'even-column' : 'odd-column');
+
+            gridContainer.appendChild(gridItem);
+        }
+        updatePlayerPosition();
+    }
+
+    function updatePlayerPosition() {
+        const gridItems = document.querySelectorAll('.grid-item');
+        gridItems.forEach((gridItem, index) => {
+            const circle = gridItem.querySelector('.circle');
+            if (circle) {
+                circle.remove();
+            }
+
+            if (index + 1 === currentPosition) {
+                const newCircle = document.createElement('div');
+                newCircle.className = 'circle';
+                gridItem.appendChild(newCircle);
+            }
+
+            const row = Math.ceil((index + 1) / 10);
+            const column = (index + 1) % 10 || 10;
+            const isEvenRow = row % 2 === 0;
+            const isEvenColumn = column % 2 === 0;
+
+            gridItem.style.backgroundColor = isEvenRow ? (isEvenColumn ? 'white' : 'black') : (isEvenColumn ? 'black' : 'white');
+            gridItem.style.color = isEvenRow ? (isEvenColumn ? 'black' : 'white') : (isEvenColumn ? 'white' : 'black');
+        });
+    }
+
+    function rollDice() {
+        const diceValue = Math.floor(Math.random() * 6) + 1;
+        const newPosition = currentPosition + diceValue;
+
+        if (newPosition <= 100) {
+            currentPosition = newPosition;
+            updatePlayerPosition();
+        }
+
+        diceResultContainer.textContent = `You rolled a ${diceValue}!`;
+
+        if (newPosition === 100) {
+            setTimeout(() => {
+                alert('Congratulations! You WON!');
+            }, 500);
+        }
+    }
+
+    function resetGame() {
+        currentPosition = 1;
+        diceResultContainer.textContent = '';
+        updatePlayerPosition();
+    }
+
+    initializeGrid();
+
+</script>
+</body>
+</html>
